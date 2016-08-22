@@ -6,7 +6,7 @@ struct SuffixArrays {
     pair<int, int> Aux[MAXN];
     int n;
      
-    void build_array(char str[], int n) {
+    void BuildArray(char str[], int n) {
         // Always declare twice the size
         this->n = n;
 
@@ -25,19 +25,19 @@ struct SuffixArrays {
         }
     }
      
-    int lcp(int i, int j) {
+    int LCP(int i, int j) {
         int step, sol = 0;
         i = Sort[i]; j = Sort[j];
      
-        for(step=0; (1<<step) <= n; step++);
-        for(; step>=0; step--) {
+        for(step = 0; (1 << step) <= n; ++step);
+        for(; step >= 0; --step) {
             if(Class[step][i] == Class[step][j]) {
                 sol += (1 << step);
                 i += (1 << step);
                 j += (1 << step);
             }
         }
-        //cerr<<sol;
+        
         return sol;
     }
 };
