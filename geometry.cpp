@@ -10,6 +10,12 @@ namespace Geometry {
 		if(abs(a.x - b.x) < kEps) return a.y < b.y;
 		return a.x < b.x;
 	};
+	istream& operator>>(istream &is, Point &p) {
+		double a, b;
+		is >> a >> b;
+		p = Point(a, b);
+		return is;
+	}
 
 
 	// Dot and cross product of two vectors
@@ -20,9 +26,14 @@ namespace Geometry {
 		return imag(conj(a) * b);
 	}
 
-	// Rotates a point clocwise with angle theta
+	// Distance between two points
+	double dist(Point a, Point b) {
+		return abs(a - b);
+	}
+
+	// Rotates a point counter-clockwise with angle theta
 	// (in radians)
-	Point RotateCW(Point a, double theta) {
+	Point RotateCCW(Point a, double theta) {
 		return a * polar(1.0, theta);
 	}
 
@@ -37,6 +48,16 @@ namespace Geometry {
 		return a + cen / (2 * cross(b, c));
 	}
 
+	// Checks if lines (a, b) and (c, d) are parallel or coincide
+	bool LinesParallelOrCoincide(Point a, Point b, Point c, Point d) { 
+		return abs(cross(b - a, d - c)) < kEps;
+	}
+	bool LinesCoincide(Point a, Point b, Point c, Point d) {
+		return LinesParallelOrCoincide(a, b, c, d)
+			&& abs(cross(a - b, a - c)) < kEps
+			&& abs(cross(c - d, c - a)) < kEps;
+	}
+
 	// Line intersection of (a, b) and (p, q)
 	// given that there is a unique intersection(not parallel or same)
 	Point LineIntersection(Point a, Point b, Point p, Point q) {
@@ -48,6 +69,19 @@ namespace Geometry {
 	// Projects point p on line (a, b)
 	Point ProjectPointOnLine(Point p, Point a, Point b) {
 		return a + (b - a) * dot(p - a, b - a) / norm(b - a);
+	}
+
+	// Projects point p on segment [a, b]
+	Point ProjectPointOnSegment(Point p, Point a, Point b) {
+		// Check a == b
+		double r = dot(b - a, b - a);
+		if(abs(r) < kEps) return a;
+
+		r = dot(p - a, b - a) / r;
+		if(r < 0) return a;
+		if(r > 1) return b;
+
+		return a + (b - a) * r;
 	}
 
 	// Returns the signed area of a (non-convex) polygon
@@ -92,6 +126,37 @@ namespace Geometry {
 	    return ans;
 	}
 
+	// Computes the intersection of line (a, b) and circle
+	// (c, r) and returns 0, 1, or 2 points
+	vector<Point> CircleLineIntersection (
+		Point a, Point b, Point c, double r) {
+		// Points cannot coincide
+		assert(abs(a - b) > kEps);
+
+		// Translate and rotate
+		b -= a; c -= a;
+		double theta = arg(b);
+		b = RotateCCW(b, -theta);
+		c = RotateCCW(c, -theta);
+		assert(abs(b.y) < kEps);
+
+		// Now intersect circle with Ox
+		vector<Point> ret;
+
+		// No intersection check
+		if(c.y > r + kEps || c.y < -r - kEps) 
+			return ret;
+
+		Point proj(c.x, 0.0);
+		double delta = sqrt(r * r - c.y * c.y);
+
+		ret.push_back(a + RotateCCW(proj - delta, theta));
+		if(delta > kEps)
+			ret.push_back(a + RotateCCW(proj + delta, theta));
+
+		return ret;
+	}
+
 	// Computes the convex hull of a set of points
 	// To make it non-strict, obviously replace the sign of the check
 	// Returns a pair <upper_hull, lower_hull>
@@ -120,4 +185,3 @@ namespace Geometry {
 		return ret;
 	}
 };
-using namespace Geometry;
