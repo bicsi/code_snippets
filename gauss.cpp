@@ -1,34 +1,61 @@
-void diag() {
-    for(var step=1; step<=n; step++) {
-        if(eq(A[step][step], 0.0)) {
-            var i;
-            for(i=step+1; i<=n && eq(A[i][step], 0); i++);
- 
-            if(i > n) continue;
- 
-            swap(A[i], A[step]);
-        }
- 
-        for(var i=m+1; i>=step; i--) {
-           A[step][i] /= A[step][step];
-        }
- 
-        for(var i=step+1; i<=n; i++) {
-            double inm = A[i][step];
-            for(var j=step; j<=m+1; j++) {
-                A[i][j] -= A[step][j] * inm;
+namespace Gauss {
+    // Transforms a matrix into its row echelon form
+    // Returns a vector of pivots (for each variable)
+    // or -1 if free variable
+    // The bool returns true if system has solution
+    vector<int> ToRowEchelon(vector<vector<double>> &M) {
+        int cons = M.size();
+        int vars = M[0].size() - 1;
+
+        vector<int> pivot(vars, -1);
+
+        int cur = 0;
+        for(int var = 0; var < vars; ++var) {
+            if(cur >= cons) continue;
+
+            if(abs(M[cur][var] < kEps)) {
+                for(int con = cur + 1; con < cons; ++con) {
+                    if(M[con][var] != 0) {
+                        swap(M[con], M[cur]);
+                        break;
+                    }
+                }
+            }
+
+            if(abs(M[cur][var]) > kEps) {
+                pivot[var] = cur;
+                double aux = M[cur][var];
+
+                for(int i = 0; i <= vars; ++i)
+                    M[cur][i] /= aux;
+
+                for(int con = 0; con < cons; ++con) {
+                    if(con != cur) {
+                        double mul = M[con][var];
+                        for(int i = 0; i <= vars; ++i) {
+                            M[con][i] -= mul * M[cur][i];
+                        }
+
+                        assert(M[con][var] < kEps);
+                    }   
+                }
+
+                ++cur;
             }
         }
- 
+
+        return pivot;
+    }  
+
+    // Returns the solution of a system
+    // Will not check if feasible
+    // Will change matrix
+    vector<double> SolveSystem(vector<vector<double>> &M) {
+        int vars = M[0].size() - 1;
+        auto pivs = ToRowEchelon(M);
+
+        vector<double> solution(pivs.size());
+        for(int i = 0; i < solution.size(); ++i)
+            solution[i] = (pivs[i] == -1) ? 0.0 : M[pivs[i]][vars];
     }
-}
- 
-void findX() {
-    for(var i=n; i>=1; i--) {
-        double rez = A[i][m+1];
-        for(var j=m; j>i; j--) {
-            rez -= A[i][j]*X[j];
-        }
-        X[i] = rez;
-    }
-}
+};
