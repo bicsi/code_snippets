@@ -1,7 +1,5 @@
 const int kMod = 1e9 + 7;
 
-// @region ModOps
-
 int add(int a, int b) {
 	a += b;
 	if(a >= kMod) a -= kMod;
