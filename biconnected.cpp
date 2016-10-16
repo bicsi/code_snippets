@@ -1,59 +1,46 @@
 namespace CBC {
-	vector<pair<int, int>> St;
-	int Parent[kMaxN], Time[kMaxN], Low[kMaxN];
+	vector<int> Stack;
+	int Depth[kMaxN], Time[kMaxN], Low[kMaxN];
 	vector<int> Nodes[kMaxN];
-	bool Viz[kMaxN];
 	int Art[kMaxN];
-	int n, timer, cbc;
+	int n, cbc;
 
 	void Init(int nn) {
 		n = nn;
 
 		for(int i = 1; i <= n; ++i) {
-			Parent[i] = Time[i] = Low[i] = Viz[i] = Art[i] = 0;
+			Time[i] = Low[i] = Art[i] = 0;
 			Nodes[i].clear();
 		}
 
-		timer = cbc = 0;
-		St.clear();
+		cbc = 0;
+		Stack.clear();
 	}
 
 	void DFS(int node) {
-	    Viz[node] = 1;
-	    Time[node] = ++timer;
-	    Low[node] = Time[node];
-	 
-	    for(auto vec : G[node]) {
-	        if(vec == Parent[node]) continue;
-	 
-	        if(!Viz[vec]) {
-	            Viz[vec] = 1;
-	            Parent[vec] = node;
-	            St.emplace_back(node, vec);
+		static int timer;
 
-	            DFS(vec);
-	 
-	            Low[node] = min(Low[node], Low[vec]);
-	 
-	            if(Low[vec] >= Time[node]) {
-	                cbc++;
-	 				
-	 				while(true) {
-	 					auto p = St.back();
-	 					St.pop_back();
+		Stack.push_back(node);
+		Low[node] = Time[node] = ++timer;
 
-	 					Nodes[cbc].push_back(p.second);
+		for(auto vec : G[node]) {
+			if(!Time[vec]) {
+				Depth[vec] = Depth[node] + 1;
+				DFS(vec);
+				Low[node] = min(Low[node], Low[vec]);
 
-	 					if(p.first == node)
-	 						break;
-	 				}
-	 				
-	 				Nodes[cbc].push_back(node);
-	            }
-	        } else if(Low[vec] < Low[node]) {
-	            Low[node] = Low[vec];
-	        }
-	    }
+				if(Low[vec] >= Time[node]) {
+					auto &To = Nodes[++cbc];
+					do {
+						To.push_back(Stack.back());
+						Stack.pop_back();
+					} while(To.back() != vec);
+					To.push_back(node);
+				}
+			} else if(Depth[vec] < Depth[node] - 1) {
+				Low[node] = min(Low[node], Time[vec]);
+			}
+		}
 	}
 
 	void MakeArticulationPoints() {
