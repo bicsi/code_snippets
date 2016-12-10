@@ -1,45 +1,41 @@
+struct BipartiteMatcher {
+	vector<vector<int>> G;
+	vector<int> L, R, Viz;
 
-#define MAXN 10001
- 
-int L[MAXN], R[MAXN];
-bool Viz[MAXN];
-vector<int> G[MAXN];
- 
-bool match(int i) {
-    if(Viz[i]) return false;
-    Viz[i] = 1;
- 
-    for(auto vec : G[i]) {
-        if(!R[vec]) {
-            L[i] = vec;
-            R[vec] = i;
-            return true;
-        }
-    }
- 
-    for(auto vec : G[i]) {
-        if(match(R[vec])) {
-            L[i] = vec;
-            R[vec] = i;
-            return true;
-        }
-    }
-    return false;
- 
-}
- 
- 
-void solve() {
-    bool ok = 1;
- 
-    while(ok) {
-        ok = 0;
- 
-        memset(Viz, 0, sizeof(Viz));
- 
-        for(int i=1; i<=n; i++) {
-            if(!L[i])
-                ok |= match(i);
-        }
-    }
-}
+	BipartiteMatcher(int n, int m) {
+		G.resize(n);
+		L.resize(n, -1);
+		R.resize(m, -1);
+		Viz.resize(n);
+	}
+
+	void AddEdge(int a, int b) {
+		G[a].push_back(b);
+	}
+
+	bool Match(int node) {
+		if(Viz[node]) 
+			return false;
+		Viz[node] = true;
+	
+		for(auto vec : G[node]) {
+			if(R[vec] == -1 || Match(R[vec])) {
+				L[node] = vec;
+				R[vec] = node;
+				return true;
+			}
+		}
+
+		return false;
+	}
+	void Solve() {
+		bool ok = true;
+		while(ok) {
+			ok = false;
+			fill(Viz.begin(), Viz.end(), 0);
+			for(int i = 0; i < L.size(); ++i)
+				if(L[i] == -1)
+					ok |= Match(i);
+		}
+	}
+};
