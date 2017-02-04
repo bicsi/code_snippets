@@ -2,7 +2,6 @@ namespace Gauss {
     // Transforms a matrix into its row echelon form
     // Returns a vector of pivots (for each variable)
     // or -1 if free variable
-    // The bool returns true if system has solution
     vector<int> ToRowEchelon(vector<vector<double>> &M) {
         int cons = M.size();
         int vars = M[0].size() - 1;

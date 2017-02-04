@@ -1,102 +1,99 @@
-struct Flow {
-    const static int MAX_EDGES = 10000;
-    const static int MAX_NODES = 1000;
-    const int INF = 1e9 + 50;
- 
-    int S = MAX_NODES - 2, D = MAX_NODES - 1;
- 
-    int G[MAX_NODES];
+template<typename T>
+struct MaxFlowMinCost {
     struct Edge {
-        int vec, flow, cap, cost, rev, nxt;
+        T cap, flow, cost;
+        int to;
     };
-    Edge E[MAX_EDGES];
-    int edges = 0;
- 
-    int ParentNode[MAX_NODES], ParentEdge[MAX_NODES], Dist[MAX_NODES];
-    bool InQ[MAX_NODES];
-    queue<int> Q;
- 
-    Flow() {
-        Reset();
+    vector<Edge> Edges;
+    vector<vector<int>> G;
+    int src, dest;
+
+    vector<int> Parent, ParentEdge, InQ;
+    vector<T> Dist;
+
+
+    MaxFlowMinCost& Initialize(int n, int m = 0) {
+        G.clear();
+        G.resize(n);
+        Edges.clear();
+        Edges.reserve(m);
+        Parent.resize(n);
+        ParentEdge.resize(n);
+        Dist.resize(n);
+        InQ.resize(n);
+
+        return *this;
     }
- 
-    void setSource(int s) {
-        S = s;
+
+    void _addEdge(int from, int to, T cap, T cost) {
+        int ei = Edges.size();
+        Edges.push_back(Edge {cap, 0, cost, to});
+        G[from].push_back(ei);
     }
-    void setSink(int d) {
-        D = d;
+    MaxFlowMinCost& AddEdge(int from, int to, T cap, T cost) {
+        _addEdge(from, to, cap, cost);
+        _addEdge(to, from, 0, -cost);
+        return *this;
     }
- 
-    void _addEdge(int a, int b, int cap, int cost, int rev) {
-        ++edges;
-        E[edges] = (Edge) {b, 0, cap, cost, rev, G[a]};
-        G[a] = edges;
+
+    MaxFlowMinCost& SetSourceSink(int src, int dest) {
+        this->src = src; this->dest = dest;
+        return *this;
     }
-    void AddEdge(int a, int b, int cap, int cost) {
-        _addEdge(a, b, cap, cost, edges + 2);
-        _addEdge(b, a, 0, -cost, edges);
-    }
- 
+
     bool Bellman() {
-        memset(ParentNode, 0, sizeof(ParentNode));
- 
-        Dist[S] = 0;
-        Q.push(S);
- 
- 
+        static queue<int> Q;
+
+        fill(Dist.begin(), Dist.end(), numeric_limits<T>::max());
+        fill(Parent.begin(), Parent.end(), -1);
+        fill(InQ.begin(), InQ.end(), 0);
+
+        Dist[src] = 0;
+        Q.push(src);
+
         while(!Q.empty()) {
-            int top = Q.front();
-            InQ[top] = 0;
+            int node = Q.front();
             Q.pop();
- 
-            for(int i=G[top]; i; i=E[i].nxt) {
-                int vec = E[i].vec;
-                if(E[i].flow < E[i].cap && (ParentNode[vec] == 0 || Dist[vec] > Dist[top] + E[i].cost)) {
-                    Dist[vec] = Dist[top] + E[i].cost;
-                    ParentNode[vec] = top;
-                    ParentEdge[vec] = i;
- 
-                    if(!InQ[vec]) {
-                        Q.push(vec);
-                        InQ[vec] = 1;
+            InQ[node] = 0;
+
+            if(Parent[node] != -1 && InQ[Parent[node]])
+                continue;
+
+            for(auto ei : G[node]) {
+                auto &e = Edges[ei];
+                if(e.flow < e.cap && Dist[e.to] > Dist[node] + e.cost) {
+                    Dist[e.to] = Dist[node] + e.cost;
+                    Parent[e.to] = node;
+                    ParentEdge[e.to] = ei;
+                    if(!InQ[e.to]) {
+                        Q.push(e.to);
+                        InQ[e.to] = 1;
                     }
                 }
             }
         }
- 
-        return ParentNode[D] != 0;
+
+        return Parent[dest] != -1;
     }
- 
-    void Reset() {
-        edges = 0;
-        memset(G, 0, sizeof(G));
-    }
- 
-    int MFMC() {
-        int cost = 0, flow = 0;
- 
+    pair<T, T> Compute() {
+        T flow = 0, cost = 0;
+
         while(Bellman()) {
-            int M = INF;
- 
-            for(int node = D; node != S; node = ParentNode[node]) {
+            T m = numeric_limits<T>::max();
+            for(int node = dest; node != src; node = Parent[node]) {
                 int ei = ParentEdge[node];
-                M = min(M, E[ei].cap - E[ei].flow);
+                m = min(m, Edges[ei].cap - Edges[ei].flow);
             }
- 
-            for(int node = D; node != S; node = ParentNode[node]) {
-                int ei = ParentEdge[node],
-                    ri = E[ei].rev;
- 
-                E[ei].flow += M;
-                E[ri].flow -= M;
- 
-                cost += E[ei].cost * M;
+            for(int node = dest; node != src; node = Parent[node]) {
+                int ei = ParentEdge[node];
+                Edges[ei].flow += m;
+                Edges[ei ^ 1].flow -= m;
+                
+                cost += Edges[ei].cost * m;
             }
- 
-            flow += M;
+            flow += m;
         }
- 
-        return cost;
+
+        return {flow, cost};
     }
- 
 };
