@@ -2,12 +2,8 @@ struct BipartiteMatcher {
 	vector<vector<int>> G;
 	vector<int> L, R, Viz;
 
-	BipartiteMatcher(int n, int m) {
-		G.resize(n);
-		L.resize(n, -1);
-		R.resize(m, -1);
-		Viz.resize(n);
-	}
+	BipartiteMatcher(int n, int m) :
+		G(n), L(n, -1), R(m, -1), Viz(n) {}
 
 	void AddEdge(int a, int b) {
 		G[a].push_back(b);
@@ -28,7 +24,7 @@ struct BipartiteMatcher {
 
 		return false;
 	}
-	void Solve() {
+	int Solve() {
 		bool ok = true;
 		while(ok) {
 			ok = false;
@@ -37,5 +33,10 @@ struct BipartiteMatcher {
 				if(L[i] == -1)
 					ok |= Match(i);
 		}
+		
+		int ret = 0;
+		for(int i = 0; i < L.size(); ++i)
+			ret += (L[i] != -1);
+		return ret;
 	}
 };
