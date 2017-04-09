@@ -2,7 +2,9 @@ struct CentroidDecomposer {
 
 	int n;
 	vector<set<int>> G;
-	vector<int> Size, CD, CP;
+	vector<int> Size;
+	// Depth and parent in the centroid tree
+	vector<int> CD, CP;
 
 	CentroidDecomposer(int n) :
 		n(n), G(n), Size(n), CD(n), CP(n) {}
