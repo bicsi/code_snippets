@@ -30,7 +30,7 @@ void Mul(Complex A[], Complex B[], Complex R[]) {
     FFT(A, R, N, 1, 0);
     FFT(B, A, N, 1, 0);
  
-    for(int i=0; i<N; i++) {
+    for(int i = 0; i < N; ++i) {
         B[i] = A[i] * R[i];
         B[i] /= N;
     }
