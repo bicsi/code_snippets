@@ -1,15 +1,15 @@
 class LinearConvexSet {
     using T = long long;
-  
+
     struct SetElem {
         T a, b;
         mutable const SetElem* next = nullptr;
-  
+
         bool is_query;
-        
+
         SetElem(T query_x) : b(query_x), is_query(true) {}
         SetElem(T a, T b) : a(a), b(b), is_query(false) {}
-    
+
         T eval(T x) const { return a * x + b; }
 
         bool operator< (const SetElem &rhs) const {
@@ -20,18 +20,18 @@ class LinearConvexSet {
             } else return (a != rhs.a) ? a < rhs.a : b < rhs.b;
         }
     };
-  
+
     set<SetElem> data;
-  
+
     bool is_bad(set<SetElem>::iterator it) {
         if (it == data.begin() || next(it) == data.end())
             return false;
-  
+
         auto prv = prev(it), nxt = next(it);
         return (it->b - prv->b) * (nxt->a - it->a)
             <= (it->b - nxt->b) * (prv->a - it->a);
     }
-  
+
     void erase(set<SetElem>::iterator it) {
         if (it != data.begin())
             prev(it)->next = it->next;
@@ -45,7 +45,7 @@ public:
         auto it = p.first;
         if (it != data.begin()) prev(it)->next = &(*it);
         if (next(it) != data.end()) it->next = &(*next(it));
-  
+
         if (is_bad(it)) erase(it);
         else {
             while (it != data.begin()) {
@@ -62,7 +62,7 @@ public:
             }
         }
     }
-  
+
     T EvaluateMax(T x) {
         SetElem ret(x);
         auto it = data.upper_bound(ret);
