@@ -32,7 +32,7 @@ struct NTTHelper {
 		}
 		return r;
 	}
-	
+
 	int inv(int x, int p) {
 		return lgpow(x, p - 2, p);
 	}
@@ -47,7 +47,7 @@ struct NTTHelper {
 	int getPrime(int n) {
 		int p = MIN_V + n - MIN_V % n + 1;
 		assert((p - 1) % n == 0);
-		
+
 		while(true) {
 			if(isPrime(p))
 				return p;
@@ -57,7 +57,7 @@ struct NTTHelper {
 
 	int getGenerator(int n, int p) {
 		for(int g = 2; true; ++g) {
-			
+
 			if(lgpow(g, n, p) != 1)
 				continue;
 
