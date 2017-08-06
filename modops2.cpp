@@ -22,9 +22,9 @@ public:
     ModInt(long long x) : m_data(x % KMod) {}
 
     int get() {
-	int ret = m_data;
-	if (ret < 0) ret += KMod;
-	return ret;
+		int ret = m_data;
+		if (ret < 0) ret += KMod;
+		return ret;
     }
 
 	ModInt pow(int e) {
