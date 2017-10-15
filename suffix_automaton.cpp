@@ -10,7 +10,6 @@ struct SuffixAutomaton {
         T.resize(sz);
         T[0].link = -1;
         T[0].len = 0;
-        occurences.resize(sz);
     }
 
     // Adds another character to the automaton
