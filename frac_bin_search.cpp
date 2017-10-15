@@ -12,6 +12,7 @@ Frac FracBinarySearch(long long max_num, Predicate pred) {
     Frac lo{0, 1}, hi{1, 1}; // set to {1, 0} for [0...max_num)
     int sign = 1;
     
+    if (pred(lo) == 0) return lo;    
     while (true) {    
         int adv = 0;
         bool down = false;
