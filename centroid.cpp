@@ -1,5 +1,4 @@
 struct CentroidDecomposer {
-
 	int n;
 	vector<set<int>> G;
 	vector<int> Size;

@@ -1,7 +1,7 @@
 namespace Treap {
     struct Node {
         int key, priority;
-        int left, right;
+        int left, right, lazy;
         int subsize;
     };
     vector<Node> T(1);
@@ -16,15 +16,18 @@ namespace Treap {
         return node;
     }
 
-    void dump(int node) {
-        if (node == 0) return;
-        dump(T[node].left);
-        cerr << T[node].key << " ";
-        dump(T[node].right);
+    void push(int node) {
+        int& lazy = T[node].lazy;
+        if (node == 0 or lazy == 0) return;
+
+        T[T[node].left].lazy += lazy;
+        T[T[node].right].lazy += lazy;
+        lazy = 0;
     }
 
     // Splits into < key and >= key
     pair<int, int> Split(int node, int key) {
+        push(node);
         if (node == 0) return {0, 0};
 
         int l, r;
@@ -40,6 +43,7 @@ namespace Treap {
     }
 
     int Join(int node1, int node2) {
+        push(node1); push(node2);
         if (!node1) return node2;
         if (!node2) return node1;
 

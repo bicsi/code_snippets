@@ -79,11 +79,11 @@ namespace Geometry {
     Point ProjectPointOnSegment(Point p, Point a, Point b) {
         // Check a == b
         double r = dot(b - a, b - a);
-        if(abs(r) < kEps) return a;
+        if (abs(r) < kEps) return a;
 
         r = dot(p - a, b - a) / r;
-        if(r < 0) return a;
-        if(r > 1) return b;
+        if (r < 0) return a;
+        if (r > 1) return b;
 
         return a + (b - a) * r;
     }
@@ -104,7 +104,7 @@ namespace Geometry {
         double area = 0;
         P.push_back(P[0]);
 
-        for(int i = 1; i < P.size(); ++i) {
+        for (int i = 1; i < P.size(); ++i) {
             area += cross(P[i - 1], P[i]);
         }
 

@@ -4,7 +4,7 @@
 // palindromes centered in each position (for parity == 1)
 // or between each pair of adjacent positions (for parity == 0)
 //
-// Example:
+// Usage:
 // Manacher("abacaba", 1) => {0, 1, 0, 3, 0, 1, 0}
 // Manacher("aabbaa", 0) => {1, 0, 3, 0, 1}
 vector<int> Manacher(string s, bool parity) {
